@@ -76,16 +76,12 @@ npm install
 npm run start
 Create a .env file in the backend/ directory:
 
-env
-Copy
-Edit
+
 MONGO_URL=your_mongodb_connection_string
 JWT_SECRET=your_jwt_secret
 PORT=5000
 Frontend Setup
-bash
-Copy
-Edit
+
 cd frontend
 npm install
 npm run dev
@@ -97,7 +93,6 @@ PORT	Backend server port (default: 5000)
 
 🙋‍♂️ Author
 Muazzam Hussain
-🔗 GitHub Profile
 
 📜 License
 This project is open-source and available under the MIT License.
