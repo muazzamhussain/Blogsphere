@@ -1,16 +1,15 @@
-import React from "react";
+import React, { useContext } from "react";
 import axios from "axios";
 import { MdDelete } from "react-icons/md";
 import { URL } from "../url";
-import { useContext } from "react";
 import { UserContext } from "../contexts/UserContext";
 
-function Comment({c}) {
+function Comment({ c }) {
   const { user } = useContext(UserContext);
 
   const deleteComment = async (id) => {
     try {
-      await axios.delete(URL + "/api/comments/" + id, {
+      await axios.delete(`${URL}/api/comments/${id}`, {
         withCredentials: true,
       });
       window.location.reload(true);
@@ -20,26 +19,27 @@ function Comment({c}) {
   };
 
   return (
-    <div className="px-2 py-2 bg-gray-200 w-[90vh] rounded-lg my-2">
-      <div className="flex items-center justify-between">
-        <h3 className="font-bold text-gray-600">@{c.author}</h3>
-        <div className="flex justify-center items-center space-x-4">
-          <p>{new Date(c.updatedAt).toString().slice(3, 15)}</p>
-          {user?._id === c?.userId ? (
-            <div className="flex items-center justify-center space-x-2">
-              <p
-                className="cursor-pointer"
-                onClick={() => deleteComment(c._id)}
-              >
-                <MdDelete />
-              </p>
-            </div>
-          ) : (
-            ""
-          )}
+    <div className="px-4 py-3 bg-gray-100 max-w-3xl w-full rounded-md shadow-md">
+      <div className="flex justify-between items-start">
+        <div className="text-left">
+          <h3 className="font-semibold text-gray-700">@{c.author}</h3>
+          <p className="text-sm text-gray-500">
+            {new Date(c.updatedAt).toDateString()}
+          </p>
         </div>
+
+        {user?._id === c?.userId && (
+          <button
+            onClick={() => deleteComment(c._id)}
+            className="text-red-500 hover:text-red-700"
+            title="Delete comment"
+          >
+            <MdDelete size={18} />
+          </button>
+        )}
       </div>
-      <p className="px-4 mt-2">{c.comment}</p>
+
+      <p className="mt-3 text-gray-800 text-left">{c.comment}</p>
     </div>
   );
 }

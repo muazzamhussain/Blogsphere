@@ -6,7 +6,6 @@ import { ImCross } from "react-icons/im";
 import { UserContext } from "../contexts/UserContext";
 import Navbar from "../components/Navbar";
 
-// Update to match your backend's port
 const URL = "http://localhost:8000";
 
 function CreatePost() {
@@ -14,23 +13,21 @@ function CreatePost() {
   const [desc, setDesc] = useState("");
   const [file, setFile] = useState(null);
   const [cat, setCat] = useState("Artificial Intelligence");
-  const [category, setcategory] = useState([]);
+  const [category, setCategory] = useState([]);
   const { user } = useContext(UserContext);
   const navigate = useNavigate();
 
   const addCategory = () => {
     if (cat && !category.includes(cat)) {
-      const updatedCats = [...category, cat];
-      setcategory(updatedCats);
-      console.log("Categories added:", updatedCats); // ✅ Debug
-      setCat("Artifical Intelligence");
+      setCategory((prev) => [...prev, cat]);
+      setCat("Artificial Intelligence");
     }
   };
 
-  const deleteCategory = (i) => {
-    const updatedcategory = [...category];
-    updatedcategory.splice(i, 1);
-    setcategory(updatedcategory);
+  const deleteCategory = (index) => {
+    const updated = [...category];
+    updated.splice(index, 1);
+    setCategory(updated);
   };
 
   const handleCreate = async (e) => {
@@ -38,7 +35,6 @@ function CreatePost() {
     let img = "";
 
     try {
-      // 1. Upload image first
       if (file) {
         const formData = new FormData();
         formData.append("file", file);
@@ -47,23 +43,19 @@ function CreatePost() {
           headers: { "Content-Type": "multipart/form-data" },
         });
 
-        img = uploadRes.data.filename; // ✅ Use filename returned by backend
+        img = uploadRes.data.filename;
       }
 
-      // 2. Create new post with uploaded image filename
       const newPost = {
         title,
         desc,
-        img, // ✅ Correct filename from backend
+        img,
         username: user.username,
         userId: user._id,
         category,
       };
 
-      await axios.post(`${URL}/api/posts/`, newPost, {
-        withCredentials: true,
-      });
-
+      await axios.post(`${URL}/api/posts/`, newPost, { withCredentials: true });
       navigate("/");
     } catch (err) {
       console.error("Post creation failed:", err);
@@ -72,95 +64,101 @@ function CreatePost() {
   };
 
   return (
-    <div>
+    <div className="bg-newwhite text-gunmetal min-h-screen">
       <Navbar />
-      <div className="flex justify-center">
-        <div className="px-6 m-4 border flex flex-col w-[70%] shadow-xl md:px-[200px] mt-8">
-          <h1 className="font-bold text-2xl mt-3 flex justify-center">
-            Create Post
-          </h1>
-          <form className="w-full flex flex-col space-y-4 md:space-y-8 mt-4">
+
+      <div className="max-w-2xl mx-auto px-4 py-8">
+        <h2 className="text-2xl font-bold text-center mb-6">Create a New Post</h2>
+
+        <form onSubmit={handleCreate} className="space-y-4 bg-white p-6 rounded-lg shadow-lg">
+          <div>
+            <label className="block mb-2 font-medium text-gunmetal text-left">Title</label>
             <input
               type="text"
-              placeholder="Enter post title"
-              className="px-4 py-4 outline-none border"
+              value={title}
               onChange={(e) => setTitle(e.target.value)}
+              placeholder="Enter post title"
+              required
+              className="w-full px-3 py-2 rounded-lg border border-onyx/20 outline-none focus:ring-2 focus:ring-chrysler_blue focus:border-transparent"
             />
+          </div>
+
+          <div>
+            <label className="block mb-2 font-medium text-gunmetal text-left">Image</label>
             <input
               type="file"
               onChange={(e) => setFile(e.target.files[0])}
-              className="px-4"
+              className="w-full px-3 py-2 border border-onyx/20 rounded-lg bg-newwhite-800 text-sm"
             />
+          </div>
 
-            {/* Category Section */}
-            <div className="flex flex-col">
-              <div className="flex items-center space-x-4 md:space-x-8">
-                <select
-                  value={cat}
-                  onChange={(e) => setCat(e.target.value)}
-                  className="border px-2 py-1"
-                >
-                  <option value="Artificial Intelligence">
-                    Artificial Intelligence
-                  </option>
-                  <option value="Big Data">Big Data</option>
-                  <option value="Block Chain">Block Chain</option>
-                  <option value="Business Management">
-                    Business Management
-                  </option>
-                  <option value="Cloud Computing">Cloud Computing</option>
-                  <option value="Database">Database</option>
-                  <option value="Cyber Security">Cyber Security</option>
-                  <option value="DevOps">DevOps</option>
-                  <option value="Web Development">Web Development</option>
-                  <option value="Mobile Development">Mobile Development</option>
-                  <option value="Operating System">Operating System</option>
-                  <option value="Enterprise">Enterprise</option>
-                </select>
-                <div
-                  onClick={addCategory}
-                  className="bg-black text-white px-4 py-2 font-semibold cursor-pointer"
-                >
-                  ADD
-                </div>
-              </div>
-
-              {/* Display added categories */}
-              <div className="flex px-4 mt-3 flex-wrap">
-                {category.map((c, i) => (
-                  <div
-                    key={i}
-                    className="flex items-center space-x-2 mr-4 bg-gray-200 px-2 py-1 rounded-md mb-2"
-                  >
-                    <p>{c}</p>
-                    <span
-                      onClick={() => deleteCategory(i)}
-                      className="text-white bg-black rounded-full cursor-pointer p-1 text-sm"
-                    >
-                      <ImCross />
-                    </span>
-                  </div>
-                ))}
-              </div>
-
-              {/* Description */}
-              <textarea
-                rows={9}
-                onChange={(e) => setDesc(e.target.value)}
-                className="px-4 py-2 outline-none border"
-                placeholder="Enter post description"
-              ></textarea>
-
-              <button
-                onClick={handleCreate}
-                className="bg-black mx-auto text-white font-semibold px-4 py-2 text-lg md:text-xl"
+          <div>
+            <label className="block mb-2 font-medium text-gunmetal text-left">Category</label>
+            <div className="flex gap-2 mb-3">
+              <select
+                value={cat}
+                onChange={(e) => setCat(e.target.value)}
+                className="flex-1 px-3 py-2 border border-onyx/20 rounded-lg outline-none focus:ring-2 focus:ring-chrysler_blue focus:border-transparent"
               >
-                Create
+                <option value="Artificial Intelligence">Artificial Intelligence</option>
+                <option value="Big Data">Big Data</option>
+                <option value="Block Chain">Block Chain</option>
+                <option value="Business Management">Business Management</option>
+                <option value="Cloud Computing">Cloud Computing</option>
+                <option value="Database">Database</option>
+                <option value="Cyber Security">Cyber Security</option>
+                <option value="DevOps">DevOps</option>
+                <option value="Web Development">Web Development</option>
+                <option value="Mobile Development">Mobile Development</option>
+                <option value="Operating System">Operating System</option>
+                <option value="Enterprise">Enterprise</option>
+              </select>
+              <button
+                type="button"
+                onClick={addCategory}
+                className="bg-chrysler_blue text-white px-4 py-2 rounded-lg hover:bg-chrysler_blue/90 transition-colors"
+              >
+                Add
               </button>
             </div>
-          </form>
-        </div>
+
+            <div className="flex flex-wrap gap-2">
+              {category.map((c, i) => (
+                <div
+                  key={i}
+                  className="bg-chrysler_blue text-white px-3 py-1 rounded-full flex items-center gap-2 text-sm"
+                >
+                  <span>{c}</span>
+                  <ImCross
+                    onClick={() => deleteCategory(i)}
+                    className="cursor-pointer text-xs hover:text-red-300"
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <label className="block mb-2 font-medium text-gunmetal text-left">Description</label>
+            <textarea
+              rows="5"
+              value={desc}
+              onChange={(e) => setDesc(e.target.value)}
+              placeholder="Write your content here..."
+              required
+              className="w-full px-3 py-2 rounded-lg border border-onyx/20 outline-none focus:ring-2 focus:ring-chrysler_blue focus:border-transparent resize-none"
+            />
+          </div>
+
+          <button
+            type="submit"
+            className="w-full bg-chrysler_blue text-white font-medium py-3 rounded-lg hover:bg-chrysler_blue/90 transition-colors"
+          >
+            Create Post
+          </button>
+        </form>
       </div>
+
       <Footer />
     </div>
   );

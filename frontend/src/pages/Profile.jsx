@@ -2,7 +2,7 @@ import React, { useContext, useState, useEffect } from "react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import axios from "axios";
-import { URL } from "../url"; // ✅ Fix: make sure this is correct
+import { URL } from "../url";
 import { useNavigate } from "react-router-dom";
 import { UserContext } from "../contexts/UserContext";
 
@@ -23,15 +23,13 @@ function Profile() {
         });
         setUsername(res.data.username);
         setEmail(res.data.email);
-        setPassword(""); // don't pre-fill password
+        setPassword("");
       } catch (error) {
         console.log("Failed to fetch user data:", error);
       }
     };
 
-    if (user?._id) {
-      fetchProfile();
-    }
+    if (user?._id) fetchProfile();
   }, [user]);
 
   const handleUserUpdate = async () => {
@@ -52,10 +50,9 @@ function Profile() {
 
   const handleUserDelete = async () => {
     try {
-      const res = await axios.delete(`${URL}/api/users/${user._id}`, {
+      await axios.delete(`${URL}/api/users/${user._id}`, {
         withCredentials: true,
       });
-      console.log("User deleted:", res.data);
       setUser(null);
       navigate("/");
     } catch (error) {
@@ -64,50 +61,53 @@ function Profile() {
   };
 
   return (
-    <div>
+    <div className="bg-newwhite min-h-screen flex flex-col">
       <Navbar />
-      <div className="border p-3 text-center align-middle flex justify-center w-[50%] mx-auto mt-8 shadow-2xl shadow-gray-500">
-        <div className="flex flex-col space-y-4 justify-center text-center w-full max-w-md">
-          <h1 className="text-xl font-bold mb-4">Profile</h1>
+      <div className="flex justify-center items-center flex-1 px-4">
+        <div className="w-full max-w-md p-6 bg-white rounded-xl shadow-2xl mt-5 ">
+          <h1 className="text-2xl font-bold text-center text-gunmetal mb-6">Profile Settings</h1>
+
           <input
             type="text"
-            className="outline-none py-2 px-3 border"
+            className="w-full px-4 py-2 mb-4 border border-onyx-900 rounded-lg outline-none text-gunmetal"
             placeholder="Your username"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
           />
           <input
             type="email"
-            className="outline-none py-2 px-3 border"
+            className="w-full px-4 py-2 mb-4 border border-onyx-900 rounded-lg outline-none text-gunmetal"
             placeholder="Your email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
           <input
             type="password"
-            className="outline-none py-2 px-3 border"
+            className="w-full px-4 py-2 mb-4 border border-onyx-900 rounded-lg outline-none text-gunmetal"
             placeholder="New password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
-          <div className="flex items-center justify-between mt-8 space-x-4">
+
+          <div className="flex justify-between mt-6 space-x-4">
             <button
-              className="bg-black text-white px-4 py-2 font-semibold hover:bg-gray-800"
+              className="flex-1 bg-chrysler_blue hover:bg-chrysler_blue-600 text-white font-semibold py-2 rounded-lg transition"
               onClick={handleUserUpdate}
             >
               Update
             </button>
             <button
-              className="bg-red-600 text-white px-4 py-2 font-semibold hover:bg-red-800"
+              className="flex-1 bg-red-600 hover:bg-red-800 text-white font-semibold py-2 rounded-lg transition"
               onClick={handleUserDelete}
             >
               Delete
             </button>
           </div>
+
           {updated && (
-            <h3 className="text-green-500 text-sm mt-4">
-              User data updated successfully ✅
-            </h3>
+            <p className="text-green-600 text-sm mt-4 text-center">
+              ✅ Profile updated successfully
+            </p>
           )}
         </div>
       </div>

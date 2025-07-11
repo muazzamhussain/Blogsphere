@@ -1,14 +1,12 @@
-import React from "react";
+import React, { useEffect, useState, useContext } from "react";
 import axios from "axios";
-import HomePosts from "../components/HomePosts";
+import { Link, useLocation } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import Loader from "../components/Loader";
+import HomePosts from "../components/HomePosts";
 import { UserContext } from "../contexts/UserContext";
 import { URL } from "../url";
-import { useEffect, useState, useContext } from "react";
-import { Link, useLocation } from "react-router-dom";
-import { BsPass } from "react-icons/bs";
 
 function Home() {
   const { search } = useLocation();
@@ -18,30 +16,26 @@ function Home() {
   const { user } = useContext(UserContext);
   const [cat, setCat] = useState([]);
   const [filterData, setFilterData] = useState([]);
+  const [activeCat, setActiveCat] = useState("All");
 
   const fetchPosts = async () => {
     try {
       const res = await axios.get(URL + "/api/posts" + search);
       setPosts(res.data);
       setFilterData(res.data);
-      let cata = res.data.map((item) => {
-        return item.category; // ✅ use correct field name
-      });
-      let sets = new Set();
-      cata.forEach((category) => {
-        category?.forEach((c) => {
-          if (c.length > 0) sets.add(c);
+
+      // Extract unique categories
+      const categories = new Set();
+      res.data.forEach((item) => {
+        item.category?.forEach((c) => {
+          if (c?.length > 0) categories.add(c);
         });
       });
-      setCat(Array.from(sets));
 
-      if (res.data.length === 0) {
-        setNoResults(true);
-      } else {
-        setNoResults(false);
-      }
+      setCat(Array.from(categories));
+      setNoResults(res.data.length === 0);
     } catch (error) {
-      console.log(error);
+      console.error(error);
       setLoader(true);
     }
   };
@@ -50,47 +44,66 @@ function Home() {
     fetchPosts();
   }, [search]);
 
-  const filtData = (filterData) => {
-    let newPosts = posts.filter((post) => {
-      return post?.category.includes(filterData);
-    });
+  const filtData = (selectedCat) => {
+    const newPosts = posts.filter((post) =>
+      post?.category?.includes(selectedCat)
+    );
     setFilterData(newPosts);
+    setActiveCat(selectedCat);
   };
 
   return (
-    <div>
+    <div className="bg-newwhite min-h-screen">
       <Navbar />
-      <div className="flex flex-wrap">
-        <div className="p-3 m-5 flex flex-wrap justify-center">
-          <button
-            className="p-3 m-5 h-[90px] w-[150px] border- text-lg font-semibold bg-white hover:shadow-blue-200 shadow shadow-black"
-            onClick={() => setFilterData(posts)}
-            type="button"
-          >
-            All
-          </button>
-          {cat.length > 0 &&
-            cat.map((category) => {
-              return (
-                <button
-                  key={category}
-                  className="p-3 m-5 h-[90px] w-[150px] border- text-lg font-semibold bg-white hover:shadow-blue-200 shadow shadow-black"
-                  onClick={() => filtData(category)}
-                  type="button"
-                >
-                  {category}
-                </button>
-              );
-            })}
-        </div>
+
+      {/* Category Filters */}
+      <div className="flex flex-wrap justify-center px-4 py-6">
+        <h1 className="text-xl font-bold mt-9">Categories: </h1>
+        <button
+          className={`p-3 m-2 w-full sm:w-[150px] h-[90px] border text-lg font-semibold transition duration-200 ease-in-out rounded-xl
+            ${
+              activeCat === "All"
+                ? "bg-chrysler_blue text-newwhite shadow-md"
+                : "bg-newwhite-900 text-gunmetal border-onyx hover:bg-newwhite-600"
+            }
+          `}
+          onClick={() => {
+            setFilterData(posts);
+            setActiveCat("All");
+          }}
+          type="button"
+        >
+          All
+        </button>
+
+        {cat.length > 0 &&
+          cat.map((category) => (
+            <button
+              key={category}
+              className={`p-3 m-2 w-full sm:w-[150px] h-[90px] border text-lg font-semibold transition duration-200 ease-in-out rounded-xl
+                ${
+                  activeCat === category
+                    ? "bg-chrysler_blue text-newwhite shadow-md "
+                    : "bg-newwhite-900 text-gunmetal border-onyx hover:bg-newwhite-600"
+                }
+              `}
+              onClick={() => filtData(category)}
+              type="button"
+              aria-label={`Filter by ${category}`}
+            >
+              {category}
+            </button>
+          ))}
       </div>
+
+      {/* Posts */}
       <div className="flex flex-wrap w-[95%] justify-center">
         {loader ? (
-          <div className="h-screen flex justify-center items-center">
+          <div className="h-[60vh] flex justify-center items-center">
             <Loader />
           </div>
         ) : noResults ? (
-          <p className="text-center mt-10 text-gray-500">No results found.</p>
+          <p className="text-center mt-10 text-onyx-600">No results found.</p>
         ) : (
           filterData.map((post) => (
             <div
@@ -98,7 +111,7 @@ function Home() {
               className="flex flex-wrap m-2 sm:w-[35vw] lg:w-[45vw] md:w-[50vw]"
             >
               <Link to={user ? `/posts/post/${post._id}` : "/login"}>
-                <HomePosts key={post._id} post={post} />
+                <HomePosts post={post} />
               </Link>
             </div>
           ))

@@ -19,6 +19,8 @@ import EditPost from "./pages/EditPost";
 import PostDetails from "./pages/PostDetails";
 
 import UserContextProvider from "./contexts/UserContext";
+import ResetPassword from "./pages/ResetPassword";
+import ForgotPassword from "./pages/ForgotPassword";
 
 // Wrap App-like structure in a layout
 const router = createBrowserRouter([
@@ -38,6 +40,8 @@ const router = createBrowserRouter([
       { path: "/write", element: <CreatePost /> },
       { path: "/edit/:id", element: <EditPost /> },
       { path: "/posts/post/:id", element: <PostDetails /> },
+      {path:"/forgot-password", element:<ForgotPassword/>},
+      {path:"/reset-password/:token", element:<ResetPassword/>}
     ],
   },
 ]);

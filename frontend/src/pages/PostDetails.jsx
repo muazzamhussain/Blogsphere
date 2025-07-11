@@ -9,7 +9,6 @@ import axios from "axios";
 import { URL, IF } from "../url";
 import { UserContext } from "../contexts/UserContext";
 import Loader from "../components/Loader";
-import { FcManager } from "react-icons/fc";
 
 function PostDetails() {
   const postId = useParams().id;
@@ -18,41 +17,42 @@ function PostDetails() {
   const [comment, setComment] = useState("");
   const [comments, setComments] = useState([]);
   const [loader, setLoader] = useState(false);
-  const [error, setError] = useState(null);
   const navigate = useNavigate();
 
-  const fetchPost = async () => {
-    try {
-      const res = await axios.get(`${URL}/api/posts/${postId}`);
-      setPost(res.data);
-      setError(null);
-    } catch (error) {
-      setError("Post not found");
-      console.error("Error fetching post:", error);
-    }
-  };
+  useEffect(() => {
+    const fetchPost = async () => {
+      try {
+        const res = await axios.get(`${URL}/api/posts/${postId}`);
+        setPost(res.data);
+      } catch (err) {
+        console.error("Post fetch failed:", err);
+      }
+    };
+
+    const fetchComments = async () => {
+      try {
+        setLoader(true);
+        const res = await axios.get(`${URL}/api/comments/post/${postId}`);
+        setComments(res.data);
+        setLoader(false);
+      } catch (err) {
+        setLoader(false);
+        console.error("Comments fetch failed:", err);
+      }
+    };
+
+    fetchPost();
+    fetchComments();
+  }, [postId]);
 
   const handlePostDelete = async () => {
     try {
-      const res = await axios.delete(`${URL}/api/posts/${postId}`, {
+      await axios.delete(`${URL}/api/posts/${postId}`, {
         withCredentials: true,
       });
-      console.log(res.data);
       navigate("/");
     } catch (error) {
-      console.log(error);
-    }
-  };
-
-  const fetchPostComments = async () => {
-    setLoader(true);
-    try {
-      const res = await axios.get(`${URL}/api/comments/post/${postId}`);
-      setComments(res.data); // ✅ Correct setter
-      setLoader(false);
-    } catch (error) {
-      setLoader(false);
-      console.log(error);
+      console.error(error);
     }
   };
 
@@ -69,99 +69,110 @@ function PostDetails() {
         },
         { withCredentials: true }
       );
-      setComment(""); // ✅ Clear input
-      fetchPostComments(); // ✅ Re-fetch comments
+      setComment("");
+      const res = await axios.get(`${URL}/api/comments/post/${postId}`);
+      setComments(res.data);
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   };
 
-  useEffect(() => {
-    fetchPost();
-    fetchPostComments();
-  }, [postId]);
-
   return (
-    <div>
+    <div className="min-h-screen bg-newwhite text-gunmetal">
       <Navbar />
       {loader ? (
         <div className="h-[80vh] flex justify-center items-center w-full">
           <Loader />
         </div>
       ) : (
-        <div className="px-10 ms:px-[200px] mt-8">
-          <div className="border p-3 shadow">
-            <div className="flex justify-between items-center">
-              <h1 className="text-3xl font-bold text-black md:text-3xl">
-                {post?.title || "Loading..."}
-              </h1>
-
+        <div className="max-w-3xl mx-auto px-4 py-6">
+          <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+            <div className="relative">
+              <img
+                src={IF + post.img}
+                alt="Post"
+                className="w-full h-64 object-cover"
+              />
               {user?._id === post?.userId && (
-                <div className="flex items-center justity-center space-x-2">
-                  <p
-                    className="cursor-pointer"
+                <div className="absolute top-3 right-3 flex gap-2">
+                  <button
                     onClick={() => navigate("/edit/" + postId)}
+                    className="p-2 bg-white/90 rounded-full shadow hover:bg-white transition-colors"
                   >
-                    <BiEdit />
-                  </p>
-                  <p className="cursor-pointer" onClick={handlePostDelete}>
-                    <MdDelete />
-                  </p>
+                    <BiEdit className="w-4 h-4 text-gunmetal hover:text-chrysler_blue" />
+                  </button>
+                  <button
+                    onClick={handlePostDelete}
+                    className="p-2 bg-white/90 rounded-full shadow hover:bg-white transition-colors"
+                  >
+                    <MdDelete className="w-4 h-4 text-gunmetal hover:text-red-600" />
+                  </button>
                 </div>
               )}
             </div>
 
-            <div className="w-full flex flex-col justify-center">
-              <img
-                src={IF + post.img}
-                alt=""
-                className="object-cover h-[45vh] mx-auto mt-8"
-              />
-              <p className="mx-auto mt-8 w-[80vh] border p-5 shadow-xl">
+            <div className="p-6">
+              <div className="flex flex-wrap gap-2 mb-4">
+                {post?.category?.map((cat, i) => (
+                  <span
+                    key={i}
+                    className="px-3 py-1 bg-chrysler_blue text-white text-sm rounded-full"
+                  >
+                    {cat}
+                  </span>
+                ))}
+              </div>
+
+              <h1 className="text-2xl font-bold text-gunmetal mb-4">
+                {post?.title}
+              </h1>
+
+              <p className="text-onyx leading-relaxed bg-newwhite-800 p-4 rounded-lg">
                 {post.desc}
               </p>
-              <div className="flex justify-center items-center mt-8 space-x-4 font-semibold">
-                <p>Categories</p>
-                <div className="flex justify-center items-center space-x-2">
-                  {post.category?.map((c, i) => (
-                    <div key={i} className="bg-gray-300 rounded-xl px-3 py-1">
-                      {c}
-                    </div>
-                  ))}
-                </div>
+            </div>
+          </div>
+
+          <div className="mt-6 bg-white rounded-lg shadow-lg">
+            <div className="p-6">
+              <div className="flex items-center gap-2 mb-4">
+                <h2 className="text-lg font-bold text-gunmetal">Comments</h2>
+                <span className="px-2 py-1 bg-newwhite text-onyx rounded-full text-xs">
+                  {comments.length}
+                </span>
               </div>
-              {/* Comments Section */}
-              <div className="flex flex-col items-center mt-8">
-                <h3 className="text-xl font-semibold mb-4">Comments:</h3>
 
-                <div className="space-y-4 w-full max-w-[700px]">
-                  {comments?.length > 0 ? (
-                    comments.map((c) => (
-                      <Comment key={c._id} c={c} post={post} />
-                    ))
-                  ) : (
-                    <p className="text-center text-gray-500">
-                      No comments yet.
-                    </p>
-                  )}
-                </div>
-
-                {/* Add comment form */}
-                {user && (
-                  <div className="border flex flex-col md:flex-row justify-center mt-6 w-full max-w-[700px]">
+              {user && (
+                <form
+                  onSubmit={postComment}
+                  className="mb-6 p-4 bg-newwhite-800 rounded-lg"
+                >
+                  <div className="flex gap-3">
                     <input
                       type="text"
                       value={comment}
                       onChange={(e) => setComment(e.target.value)}
-                      placeholder="Write a comment"
-                      className="md:w-[80%] outline-none py-2 px-4 mt-4 md:mt-0"
+                      placeholder="Write a comment..."
+                      className="flex-1 px-3 py-2 border border-onyx/20 rounded-lg outline-none focus:ring-2 focus:ring-chrysler_blue focus:border-transparent"
                     />
                     <button
-                      className="bg-black text-sm text-white font-semibold px-2 py-4 md:w-[20%] mt-4 md:mt-0"
-                      onClick={postComment}
+                      type="submit"
+                      className="px-4 py-2 bg-chrysler_blue text-white rounded-lg hover:bg-chrysler_blue/90 transition-colors"
                     >
-                      Add comment
+                      Post
                     </button>
+                  </div>
+                </form>
+              )}
+
+              <div className="space-y-4">
+                {comments.length > 0 ? (
+                  comments.map((c) => (
+                    <Comment key={c._id} c={c} post={post} />
+                  ))
+                ) : (
+                  <div className="text-center py-8">
+                    <p className="text-onyx/60">No comments yet</p>
                   </div>
                 )}
               </div>

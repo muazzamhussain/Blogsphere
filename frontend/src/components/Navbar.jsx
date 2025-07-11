@@ -1,4 +1,4 @@
-import { React, useContext, useState } from "react";
+import { useContext, useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { BsSearch } from "react-icons/bs";
 import { FaBars } from "react-icons/fa";
@@ -10,73 +10,114 @@ function Navbar() {
   const [menu, setMenu] = useState(false);
   const navigate = useNavigate();
   const path = useLocation().pathname;
+  const { user } = useContext(UserContext);
+  const [showMobileSearch, setShowMobileSearch] = useState(false);
 
-  const showMenu = () => {
-    setMenu(!menu);
+  const handleSearch = () => {
+    navigate(prompt ? `/?search=${prompt}` : "/");
   };
 
-  const { user } = useContext(UserContext);
+  useEffect(() => {
+    setMenu(false);
+    setShowMobileSearch(false);
+  }, [path]);
 
   return (
-    <div>
-      <div className="flex items-center justify-between px-6 md:px-[200px] py-4 bg-black text-white">
-        <h1 className="text-lg md:text-2xl font-extrabold m-3">
-          <Link to="/">Blogsphere</Link>
-        </h1>
+    <>
+      <nav className="flex items-center justify-between px-6 py-4 bg-gunmetal text-newwhite relative">
+        {/* Logo */}
+        <Link
+          to="/"
+          className="flex items-center text-lg md:text-2xl font-extrabold hover:text-white"
+        >
+          <img src="/logo512.png" alt="logo" className="w-9 mx-2" />
+          Blogsphere
+        </Link>
+
         {path === "/" && (
-          <div
-            onChange={(e) => {
-              setPrompt(e.target.value);
-            }}
-            className="flex items-center justify-center "
-          >
-            <input
-              className="outline-none rounded-l-xl px-3 py-2 text-black bg-white"
-              placeholder="search a post"
-              size={30}
-              type="text"
+          <div className="flex sm:hidden items-center">
+            <BsSearch
+              aria-label="Open mobile search"
+              onClick={() => setShowMobileSearch(!showMobileSearch)}
+              className="text-xl cursor-pointer"
             />
-            <p
-              onClick={() => {
-                navigate(prompt ? "?search" + prompt : "/");
-              }}
-              className="cursor-pointer py-3 px-2 bg-white text-black rounded-r-xl"
-            >
-              <BsSearch />
-            </p>
           </div>
         )}
-        <div className="hidden md:flex items-center justify-center space-x-2 md:space-x-4 m-3">
+
+        {/* Search */}
+        {path === "/" && (
+          <div className="hidden sm:flex items-center">
+            <input
+              type="text"
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+              placeholder="Search a post"
+              className="outline-none rounded-l-lg px-3 py-1 text-black bg-newwhite-800"
+            />
+            <button
+              aria-label="Search"
+              onClick={handleSearch}
+              className="cursor-pointer px-3 py-2 bg-white text-black rounded-r-lg hover:bg-newwhite"
+            >
+              <BsSearch />
+            </button>
+          </div>
+        )}
+
+        {/* Desktop Menu */}
+        <div className="hidden md:flex items-center gap-4">
           {user ? (
-            <h3>
-              <Link to="/write">Write</Link>
-            </h3>
+            <>
+              <Link to="/write" className="hover:text-white">
+                Write
+              </Link>
+              <div
+                className="cursor-pointer relative"
+                onClick={() => setMenu(!menu)}
+              >
+                <FaBars />
+                {menu && <Menu />}
+              </div>
+            </>
           ) : (
-            <h3>
-              <Link to="/login">Login</Link>
-            </h3>
-          )}
-          {user ? (
-            <div onClick={showMenu}>
-              {" "}
-              <p className="cursor-pointer relative">
-                <FaBars /> {menu && <Menu />}
-              </p>{" "}
-            </div>
-          ) : (
-            <h3>
-              <Link to="/register">Register</Link>
-            </h3>
+            <>
+              <Link to="/login" className="hover:text-white">
+                Login
+              </Link>
+              <Link to="/register" className="hover:text-white">
+                Register
+              </Link>
+            </>
           )}
         </div>
-        <div onClick={showMenu} className="md:hidden text-lg">
-          <p className="cursor-pointer relative">
-            <FaBars />
-          </p>
+
+        {/* Mobile Hamburger Menu */}
+        <div className="md:hidden text-xl" onClick={() => setMenu(!menu)}>
+          <FaBars />
           {menu && <Menu />}
         </div>
-      </div>
-    </div>
+      </nav>
+      {showMobileSearch && path === "/" && (
+        <div className="sm:hidden px-6 pb-3 bg-gunmetal flex items-center transition-all duration-200">
+          <input
+            type="text"
+            value={prompt}
+            onChange={(e) => setPrompt(e.target.value)}
+            placeholder="Search a post"
+            className="flex-grow px-3 py-1 rounded-l-lg outline-none text-gunmetal bg-newwhite-800"
+          />
+          <button
+            onClick={() => {
+              handleSearch();
+              setShowMobileSearch(false);
+            }}
+            className="px-3 py-2 bg-newwhite text-gunmetal rounded-r-lg hover:bg-newwhite-600 transition duration-200"
+          >
+            <BsSearch />
+          </button>
+        </div>
+      )}
+    </>
   );
 }
 

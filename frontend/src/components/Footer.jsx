@@ -2,28 +2,52 @@ import React from "react";
 
 function Footer() {
   return (
-    <div>
-      <div className="mt-8 w-full bg-black px-8 md:px-[300px] flex md:flex-row flex-col space-y-6 md:space-y-0 items-start md:justify-between text-sm md:text-md py-8">
-        <div className="flex flex-col text-white ">
-          <p>Featured blogs</p>
-          <p>Most viewed</p>
-          <p>Reader's choice</p>
+    <footer className="mt-8 w-full bg-gunmetal px-6 sm:px-10 md:px-20 py-8 text-sm cursor-pointer">
+      <div className="flex flex-col md:flex-row md:justify-between space-y-6 md:space-y-0">
+        {/* Column 1 */}
+        <div className="flex flex-col text-newwhite text-center md:text-left">
+          <p className="hover:text-newwhite-100 m-1 transition-colors duration-150">
+            Featured Blogs
+          </p>
+          <p className="hover:text-newwhite-100 m-1 transition-colors duration-150">
+            Most Viewed
+          </p>
+          <p className="hover:text-newwhite-100 m-1 transition-colors duration-150">
+            Reader's Choice
+          </p>
         </div>
-        <div className="flex flex-col text-white ">
-          <p>Forum</p>
-          <p>Support</p>
-          <p>Recent posts</p>
+
+        {/* Column 2 */}
+        <div className="flex flex-col text-newwhite text-center md:text-left">
+          <p className="hover:text-newwhite-100 m-1 transition-colors duration-150">
+            Forum
+          </p>
+          <p className="hover:text-newwhite-100 m-1 transition-colors duration-150">
+            Support
+          </p>
+          <p className="hover:text-newwhite-100 m-1 transition-colors duration-150">
+            Recent Posts
+          </p>
         </div>
-        <div className="flex flex-col text-white ">
-          <p>Privacy policy</p>
-          <p>About me</p>
-          <p>Terms & conditions</p>
+
+        {/* Column 3 */}
+        <div className="flex flex-col text-newwhite text-center md:text-left">
+          <p className="hover:text-newwhite-100 m-1 transition-colors duration-150">
+            Privacy Policy
+          </p>
+          <p className="hover:text-newwhite-100 m-1 transition-colors duration-150">
+            About Me
+          </p>
+          <p className="hover:text-newwhite-100 m-1 transition-colors duration-150">
+            Terms & Conditions
+          </p>
         </div>
       </div>
-      <p className="py-2 pb-6 text-center text-white bg-black">
-        All rights reserved &copy; Muazzam Hussain
-      </p>
-    </div>
+
+      <div className="mt-8 border-t border-newwhite-200 pt-4 text-center text-[12px] text-newwhite">
+        &copy; 2025 Blogsphere by MSK. All rights reserved.
+      </div>
+    </footer>
   );
 }
 

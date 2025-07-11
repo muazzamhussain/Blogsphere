@@ -3,26 +3,33 @@ import { IF } from "../url";
 
 function HomePosts({ post }) {
   return (
-    <div>
-      <div className="h-[45vh] flex flex-wrap bg-white border-gray-200 shadow">
-        <div className="overflow-hidden h-[20vh]">
-          <img
-            className="object-cover w-96 hover:scale-150"
-            src={IF + post.img}
-            alt=""
-          />
-        </div>
-        <div className="pl-3">
-          <h5 className="text-xl font-bold text-gray-900">
-            {post.title}
-          </h5>
-          <div className="text-xs font-semibold text-gray-500">
-            <p className="text-blue-400">by {post.username}</p>
-            <div className="mt-3 font-normal text-gray-700">
-              <p>{post.desc.slice(0.75)+"...read more"}</p>
-            </div>
-          </div>
-        </div>
+    <div className="h-[45vh] w-full bg-newwhite border border-onyx-800 shadow hover:shadow-lg transition duration-300 rounded-lg overflow-hidden">
+      {/* Image */}
+      <div className="h-[50%] w-full overflow-hidden">
+        <img
+          src={IF + post.img}
+          alt="Post thumbnail"
+          className="w-full h-full object-cover transform hover:scale-110 transition duration-300 ease-in-out"
+        />
+      </div>
+
+      {/* Text content */}
+      <div className="p-3 h-[50%] flex flex-col ">
+        <h5 className="text-xl text-left font-bold text-gunmetal line-clamp-2">
+          {post.title}
+        </h5>
+
+        <p className="text-xs text-chrysler_blue font-semibold mt-1 text-left">
+          by {post.username}
+        </p>
+
+        <p className="text-sm text-onyx-600 mt-2">
+          {post.desc?.slice(0, 75)}
+          <span className="text-chrysler_blue font-semibold">...read more</span>
+        </p>
+        <p className="text-sm text-onyx-500 mt-2 text-right">
+          {post.createdAt.toLocaleString().slice(0, 10)}
+        </p>
       </div>
     </div>
   );

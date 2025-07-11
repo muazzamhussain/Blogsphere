@@ -1,61 +1,75 @@
 import React, { useContext } from "react";
 import { UserContext } from "../contexts/UserContext";
-import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
+import { URL } from "../url";
 
 function Menu() {
-  const { user } = useContext(UserContext);
-  const { setUser } = useContext(UserContext);
+  const { user, setUser } = useContext(UserContext);
   const navigate = useNavigate();
 
   const handleLogout = async () => {
     try {
-      const res = await fetch(`${URL}/api/auth/logout`, {
+      await fetch(`${URL}/api/auth/logout`, {
         method: "GET",
-        credentials: "include", // ✅ REQUIRED to send cookie!
+        credentials: "include",
       });
 
       setUser(null);
       navigate("/login");
     } catch (err) {
-      console.log(err);
+      console.log("Logout failed:", err);
     }
   };
 
   return (
-    <div className="bg-black w-[200px] z-10 flex flex-col items-start absolute top-12 right-0 rounded-md p-4 space-y-4">
+    <div className="absolute top-12 right-4 bg-white shadow-lg rounded-lg w-[200px] z-50 p-4 flex flex-col items-start space-y-3 border text-sm">
       {!user && (
-        <h3 className="text-white text-sm hover:text-gray-500 cursor-pointer">
-          <Link to="/login">Login</Link>
-        </h3>
+        <Link
+          to="/login"
+          className="text-gray-800 hover:text-blue-600 transition duration-150"
+        >
+          Login
+        </Link>
       )}
       {!user && (
-        <h3 className="text-white text-sm hover:text-gray-500 cursor-pointer">
-          <Link to="/register">Register</Link>
-        </h3>
+        <Link
+          to="/register"
+          className="text-gray-800 hover:text-blue-600 transition duration-150"
+        >
+          Register
+        </Link>
       )}
       {user && (
-        <h3 className="text-white text-sm hover:text-gray-500 cursor-pointer">
-          <Link to={"/profile/" + user._id}>Profile</Link>
-        </h3>
+        <Link
+          to={`/profile/${user._id}`}
+          className="text-gray-800 hover:text-blue-600 transition duration-150"
+        >
+          Profile
+        </Link>
       )}
       {user && (
-        <h3 className="text-white text-sm hover:text-gray-500 cursor-pointer">
-          <Link to={"/write"}>Write</Link>
-        </h3>
+        <Link
+          to="/write"
+          className="text-gray-800 hover:text-blue-600 transition duration-150"
+        >
+          Write
+        </Link>
       )}
       {user && (
-        <h3 className="text-white text-sm hover:text-gray-500 cursor-pointer">
-          <Link to={"/myblogs/" + user._id}>My Blogs</Link>
-        </h3>
+        <Link
+          to={`/myblogs/${user._id}`}
+          className="text-gray-800 hover:text-blue-600 transition duration-150"
+        >
+          My Blogs
+        </Link>
       )}
       {user && (
-        <h3
-          className="text-white text-sm hover:text-gray-500 cursor-pointer"
+        <button
           onClick={handleLogout}
+          className="text-left text-gray-800 hover:text-red-600 transition duration-150"
         >
           Logout
-        </h3>
+        </button>
       )}
     </div>
   );
