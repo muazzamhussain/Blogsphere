@@ -54,10 +54,6 @@ Blogsphere/
 │ ├── contexts/
 │ └── App.jsx
 
-yaml
-Copy
-Edit
-
 ---
 
 ## 🔧 Installation
@@ -74,6 +70,8 @@ Edit
 cd backend
 npm install
 npm run start
+```bash
+
 Create a .env file in the backend/ directory:
 
 
